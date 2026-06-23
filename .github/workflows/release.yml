@@ -11,6 +11,7 @@ concurrency:
 permissions:
   contents: write
   pull-requests: write
+  id-token: write # required for npm trusted publishing (OIDC)
 
 jobs:
   release:
@@ -22,15 +23,20 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
           registry-url: 'https://registry.npmjs.org'
+
+      # Trusted publishing (OIDC) requires npm >= 11.5.1, newer than the npm
+      # bundled with Node 22. No NPM_TOKEN needed — auth is via OIDC.
+      - name: Upgrade npm for trusted publishing
+        run: npm install -g npm@latest
 
       - name: Install
         run: pnpm install --frozen-lockfile
 
       # Opens/updates a "Version Packages" PR when there are changesets, and
-      # publishes to npm when that PR is merged (no changesets left to apply).
+      # publishes to npm (via OIDC, with provenance) when that PR is merged.
       - name: Create release PR or publish
         uses: changesets/action@v1
         with:
@@ -40,5 +46,3 @@ jobs:
           title: 'chore: version packages'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
