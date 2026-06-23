@@ -1,0 +1,27 @@
+{
+  "name": "@prediction-kit/core",
+  "version": "0.1.0",
+  "description": "Provider-agnostic SDK for prediction-market data (Polymarket, Kalshi) with one normalized model.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["prediction-market", "polymarket", "kalshi", "sdk", "typescript"]
+}
