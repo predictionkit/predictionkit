@@ -4,6 +4,13 @@
   "private": true,
   "description": "A developer toolkit for integrating prediction market data into React apps via one normalized API.",
   "license": "MIT",
+  "author": "Jack Knoell",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/predictionkit/predictionkit.git"
+  },
+  "homepage": "https://github.com/predictionkit/predictionkit#readme",
+  "bugs": "https://github.com/predictionkit/predictionkit/issues",
   "packageManager": "pnpm@11.8.0",
   "engines": {
     "node": ">=18"
@@ -17,9 +24,13 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,css}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,css}\"",
     "smoke": "tsx scripts/smoke.ts",
-    "storybook": "pnpm --filter @prediction-kit/react storybook"
+    "storybook": "pnpm --filter @prediction-kit/react storybook",
+    "changeset": "changeset",
+    "version-packages": "changeset version && pnpm install --lockfile-only",
+    "release": "turbo run build --filter=./packages/* && changeset publish"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.27.11",
     "@eslint/js": "^9.17.0",
     "@prediction-kit/core": "workspace:*",
     "@prediction-kit/react": "workspace:*",

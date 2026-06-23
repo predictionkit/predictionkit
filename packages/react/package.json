@@ -3,6 +3,14 @@
   "version": "0.1.0",
   "description": "Headless, accessible React components and hooks for prediction-market data, built on @prediction-kit/core.",
   "license": "MIT",
+  "author": "Jack Knoell",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/predictionkit/predictionkit.git",
+    "directory": "packages/react"
+  },
+  "homepage": "https://github.com/predictionkit/predictionkit/tree/main/packages/react#readme",
+  "bugs": "https://github.com/predictionkit/predictionkit/issues",
   "type": "module",
   "sideEffects": ["*.css"],
   "main": "./dist/index.cjs",
@@ -17,6 +25,9 @@
     "./styles.css": "./dist/styles.css"
   },
   "files": ["dist"],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsup && cp src/styles.css dist/styles.css",
     "dev": "tsup --watch",

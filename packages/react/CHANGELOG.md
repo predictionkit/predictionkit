@@ -1,0 +1,14 @@
+# @prediction-kit/react
+
+## 1.0.0
+
+### Minor Changes
+
+- 6d2bad1: Initial public release. `@prediction-kit/core` provides a provider-agnostic SDK for prediction-market
+  data with Polymarket and Kalshi adapters behind one normalized model; `@prediction-kit/react` adds
+  headless, accessible components and hooks built on it.
+
+### Patch Changes
+
+- Updated dependencies [6d2bad1]
+  - @prediction-kit/core@1.0.0
