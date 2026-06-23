@@ -49,8 +49,15 @@ export class HttpClient {
     this.baseUrl = options.baseUrl.replace(/\/$/, '');
     this.minIntervalMs = options.minIntervalMs ?? 0;
     this.maxRetries = options.maxRetries ?? 3;
-    this.fetchImpl = options.fetchImpl ?? globalThis.fetch;
-    if (!this.fetchImpl) {
+    if (options.fetchImpl) {
+      this.fetchImpl = options.fetchImpl;
+    } else if (typeof globalThis.fetch === 'function') {
+      // Bind to globalThis so calling it as `this.fetchImpl(...)` doesn't invoke
+      // the browser's `fetch` with the wrong receiver (which throws
+      // "Illegal invocation"). Node's fetch is receiver-agnostic, so this only
+      // matters in the browser.
+      this.fetchImpl = globalThis.fetch.bind(globalThis);
+    } else {
       throw new Error('No fetch implementation available. Pass `fetchImpl` to the provider.');
     }
   }
