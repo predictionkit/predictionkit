@@ -49,10 +49,11 @@ interface KalshiEventsResponse {
   cursor?: string;
 }
 
-/** Context from a market's parent event used to build a readable title. */
+/** Context from a market's parent event used to build a title and URL. */
 interface EventContext {
   title?: string;
   category?: string;
+  seriesTicker?: string;
 }
 
 export interface KalshiOptions {
@@ -102,6 +103,21 @@ function composeTitle(eventTitle: string | undefined, m: KalshiMarket): string {
   return base || sub || m.title?.trim() || m.ticker;
 }
 
+/** The series ticker is the prefix of an event/market ticker before the first `-`. */
+function deriveSeries(ticker?: string): string | undefined {
+  return ticker?.split('-')[0] || undefined;
+}
+
+/**
+ * Kalshi's public market pages live under the series, e.g.
+ * `kalshi.com/markets/<series-ticker>`. We build that reliable form from the
+ * series ticker (the full market ticker is not a valid page URL).
+ */
+function marketUrl(m: KalshiMarket, seriesTicker?: string): string | undefined {
+  const series = seriesTicker ?? deriveSeries(m.event_ticker) ?? deriveSeries(m.ticker);
+  return series ? `${SITE}/markets/${series.toLowerCase()}` : undefined;
+}
+
 function normalizeMarket(m: KalshiMarket, ctx: EventContext = {}): Market {
   const probability = yesProbability(m);
   return {
@@ -115,7 +131,7 @@ function normalizeMarket(m: KalshiMarket, ctx: EventContext = {}): Market {
     category: ctx.category,
     status: mapStatus(m.status),
     endDate: m.close_time,
-    url: `${SITE}/markets/${m.ticker}`,
+    url: marketUrl(m, ctx.seriesTicker),
     outcomes: [
       { label: 'Yes', probability },
       { label: 'No', probability: clamp01(1 - probability) },
@@ -127,8 +143,13 @@ function normalizeMarket(m: KalshiMarket, ctx: EventContext = {}): Market {
 function collect(events: KalshiEvent[]): Array<{ m: KalshiMarket; ctx: EventContext }> {
   const out: Array<{ m: KalshiMarket; ctx: EventContext }> = [];
   for (const event of events) {
+    const ctx: EventContext = {
+      title: event.title,
+      category: event.category,
+      seriesTicker: event.series_ticker,
+    };
     for (const m of event.markets ?? []) {
-      out.push({ m, ctx: { title: event.title, category: event.category } });
+      out.push({ m, ctx });
     }
   }
   return out;
@@ -177,7 +198,11 @@ export function kalshi(options: KalshiOptions = {}): PredictionProvider {
           const { event } = await http.get<KalshiEventResponse>(
             `/events/${encodeURIComponent(market.event_ticker)}`,
           );
-          ctx = { title: event?.title, category: event?.category };
+          ctx = {
+            title: event?.title,
+            category: event?.category,
+            seriesTicker: event?.series_ticker,
+          };
         } catch {
           // Event lookup is best-effort; fall back to the market's own fields.
         }

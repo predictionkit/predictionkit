@@ -60,6 +60,7 @@ describe('kalshi adapter', () => {
     expect(markets[0]?.source).toBe('kalshi');
     expect(markets[0]?.title).toBe('NYC high temperature on Mar 15 — 75°F or above');
     expect(markets[0]?.category).toBe('Climate');
+    expect(markets[0]?.url).toBe('https://kalshi.com/markets/kxhighny');
   });
 
   it('sorts trending markets by 24h volume client-side', async () => {
