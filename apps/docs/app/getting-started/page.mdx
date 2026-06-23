@@ -1,0 +1,91 @@
+export const metadata = { title: 'Getting Started — PredictionKit' };
+
+# Getting Started
+
+PredictionKit has two packages: **`@prediction-kit/core`** (the provider-agnostic SDK) and
+**`@prediction-kit/react`** (headless components and hooks built on it).
+
+## Install
+
+```bash
+npm install @prediction-kit/core @prediction-kit/react react react-dom
+```
+
+## 1. Create a client
+
+A client is a set of providers. Reads fan out across all of them and merge by volume.
+
+```ts
+import { createClient, polymarket, kalshi } from '@prediction-kit/core';
+
+const client = createClient({ providers: [polymarket(), kalshi()] });
+
+const trending = await client.getMarkets({ limit: 10 });
+const one = await client.getMarket('polymarket:253591');
+```
+
+Every result is the same normalized shape:
+
+```ts
+interface Market {
+  id: string; // "<source>:<nativeId>"
+  source: 'polymarket' | 'kalshi';
+  title: string;
+  probability: number; // 0–1 (Yes outcome)
+  volume?: number;
+  status: 'open' | 'closed' | 'resolved';
+  endDate?: string;
+  url?: string;
+  outcomes?: { label: string; probability: number }[];
+}
+```
+
+## 2. Add the React layer
+
+Wrap your app in a provider, then use components or hooks.
+
+```tsx
+import { PredictionKitProvider, TrendingMarkets } from '@prediction-kit/react';
+import '@prediction-kit/react/styles.css'; // optional default theme
+
+export function App() {
+  return (
+    <PredictionKitProvider client={client}>
+      <TrendingMarkets limit={10} />
+    </PredictionKitProvider>
+  );
+}
+```
+
+Prefer your own UI? Use the hooks instead:
+
+```tsx
+import { useTrendingMarkets } from '@prediction-kit/react';
+
+function MyWidget() {
+  const { data, loading, error } = useTrendingMarkets({ limit: 5 });
+  if (loading) return <Spinner />;
+  if (error) return <p>{error.message}</p>;
+  return <MyList markets={data} />;
+}
+```
+
+## 3. Styling
+
+Components are usable with **no CSS at all**. Opt into the default theme with the stylesheet import
+above, override CSS variables, or target the stable `pk-*` classes.
+
+```css
+:root {
+  --pk-accent: #7c3aed;
+  --pk-radius: 4px;
+}
+```
+
+## A note on the browser
+
+Market-data reads need no auth. Polymarket allows browser requests; **Kalshi does not send CORS
+headers**, so call it from a server (or a proxy route) when running client-side. See how the
+[live demo](/demo) does it.
+
+Next: explore the [components](/components) or read about the [providers](/providers).

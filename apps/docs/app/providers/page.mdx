@@ -1,0 +1,66 @@
+export const metadata = { title: 'Providers — PredictionKit' };
+
+# Providers
+
+A provider is a read-only adapter that fetches from one source and returns the normalized
+`Market` shape. PredictionKit ships two; you can add your own.
+
+## Polymarket
+
+```ts
+import { polymarket } from '@prediction-kit/core';
+polymarket({ baseUrl?, minIntervalMs?, fetchImpl? });
+```
+
+Backed by the public **Gamma API** (no auth). Notable handling:
+
+- Parses Polymarket's stringified-JSON array fields (`outcomes`, `outcomePrices`).
+- Probability comes from the Yes outcome price (already 0–1).
+- Links resolve to the parent **event** page (`/event/<event-slug>`).
+
+## Kalshi
+
+```ts
+import { kalshi } from '@prediction-kit/core';
+kalshi({ baseUrl?, minIntervalMs?, fetchImpl? });
+```
+
+Backed by the public **v2 REST API** (no auth). Notable handling:
+
+- Discovers markets via the **events** endpoint — the bare markets listing is dominated by
+  auto-generated parlay markets with no volume and concatenated titles.
+- Uses the post-2026 fixed-point `*_dollars` price fields; probability is the Yes bid/ask midpoint.
+- Sorts client-side (Kalshi has no server-side sort) and throttles to respect rate limits.
+- Links resolve to the series page (`/markets/<series-ticker>`).
+
+## The unified client
+
+```ts
+const client = createClient({ providers: [polymarket(), kalshi()] });
+```
+
+- `getMarket(id)` routes by the id prefix (`"kalshi:..."` → Kalshi).
+- `getMarkets()` / `getTrendingMarkets()` fan out in parallel and merge by descending volume. A
+  failing provider is skipped, not fatal.
+
+## Custom providers
+
+Implement the `PredictionProvider` interface and pass it to `createClient` — every component and
+hook works with it unchanged.
+
+```ts
+import type { PredictionProvider } from '@prediction-kit/core';
+
+const myProvider: PredictionProvider = {
+  source: 'polymarket', // a registered ProviderSource
+  async getMarket(nativeId) {
+    /* ... */
+  },
+  async getMarkets(opts) {
+    /* ... */
+  },
+  async getTrendingMarkets(opts) {
+    /* ... */
+  },
+};
+```
