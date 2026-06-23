@@ -1,0 +1,123 @@
+/*
+ * Optional default theme for @prediction-kit/react.
+ * Import with: import '@prediction-kit/react/styles.css'
+ *
+ * Components are fully usable without this file. Everything is driven by CSS
+ * variables (override them on :root or any ancestor) and every element keeps a
+ * stable `pk-*` class so you can restyle freely.
+ */
+:root {
+  --pk-font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --pk-radius: 10px;
+  --pk-gap: 0.75rem;
+  --pk-border: #e4e4e7;
+  --pk-bg: #ffffff;
+  --pk-fg: #18181b;
+  --pk-muted: #71717a;
+  --pk-accent: #2563eb;
+  --pk-badge-bg: #eff6ff;
+  --pk-badge-fg: #1d4ed8;
+  --pk-status-open: #16a34a;
+  --pk-status-closed: #d97706;
+  --pk-status-resolved: #6b7280;
+}
+
+.pk-badge {
+  display: inline-block;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  font: 600 0.8rem / 1.4 var(--pk-font);
+  color: var(--pk-badge-fg);
+  background: var(--pk-badge-bg);
+  font-variant-numeric: tabular-nums;
+}
+
+.pk-card {
+  display: flex;
+  gap: var(--pk-gap);
+  align-items: flex-start;
+  padding: var(--pk-gap);
+  border: 1px solid var(--pk-border);
+  border-radius: var(--pk-radius);
+  background: var(--pk-bg);
+  color: var(--pk-fg);
+  font-family: var(--pk-font);
+}
+
+.pk-card__image {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex: none;
+}
+
+.pk-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.pk-card__title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.pk-card__title a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.pk-card__title a:hover {
+  text-decoration: underline;
+}
+
+.pk-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  color: var(--pk-muted);
+}
+
+.pk-card__source {
+  text-transform: capitalize;
+}
+
+.pk-card__status {
+  text-transform: capitalize;
+}
+
+.pk-card__status--open {
+  color: var(--pk-status-open);
+}
+
+.pk-card__status--closed {
+  color: var(--pk-status-closed);
+}
+
+.pk-card__status--resolved {
+  color: var(--pk-status-resolved);
+}
+
+.pk-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--pk-gap);
+}
+
+.pk-status {
+  font-family: var(--pk-font);
+  font-size: 0.85rem;
+  color: var(--pk-muted);
+  padding: var(--pk-gap);
+}
+
+.pk-status--error {
+  color: #dc2626;
+}
