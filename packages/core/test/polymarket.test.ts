@@ -15,6 +15,7 @@ const market = {
   closed: false,
   endDate: '2026-12-31T12:00:00Z',
   image: 'https://example.com/btc.png',
+  events: [{ slug: 'what-price-will-btc-hit', title: 'BTC price' }],
 };
 
 describe('polymarket adapter', () => {
@@ -33,7 +34,7 @@ describe('polymarket adapter', () => {
       status: 'open',
       endDate: '2026-12-31T12:00:00Z',
     });
-    expect(result.url).toContain('will-btc-close-above-100k');
+    expect(result.url).toBe('https://polymarket.com/event/what-price-will-btc-hit');
     expect(result.outcomes).toEqual([
       { label: 'Yes', probability: 0.62 },
       { label: 'No', probability: 0.38 },

@@ -26,6 +26,8 @@ interface GammaMarket {
   endDate?: string;
   image?: string;
   category?: string;
+  /** Parent event(s); the public page URL is built from the event slug. */
+  events?: Array<{ slug?: string; title?: string }>;
 }
 
 interface GammaEvent {
@@ -67,7 +69,19 @@ function deriveOutcomes(market: GammaMarket): { probability: number; outcomes?: 
   return { probability, outcomes: outcomes.length ? outcomes : undefined };
 }
 
-function normalizeMarket(market: GammaMarket): Market {
+/**
+ * Polymarket's public pages live at `/event/<event-slug>`. The market's own
+ * `slug` is not a valid page URL, so we use the parent event's slug — passed in
+ * for trending (where we already have the event) or read from the market's
+ * embedded `events`. If neither is available we omit the link rather than
+ * produce a 404.
+ */
+function eventUrl(market: GammaMarket, eventSlug?: string): string | undefined {
+  const slug = eventSlug ?? market.events?.find((e) => e.slug)?.slug;
+  return slug ? `${SITE}/event/${slug}` : undefined;
+}
+
+function normalizeMarket(market: GammaMarket, ctx: { eventSlug?: string } = {}): Market {
   const { probability, outcomes } = deriveOutcomes(market);
   return {
     id: `polymarket:${market.id}`,
@@ -81,7 +95,7 @@ function normalizeMarket(market: GammaMarket): Market {
     status: market.closed ? 'resolved' : market.active === false ? 'closed' : 'open',
     endDate: market.endDate,
     image: market.image,
-    url: market.slug ? `${SITE}/event/${market.slug}` : undefined,
+    url: eventUrl(market, ctx.eventSlug),
     outcomes,
   };
 }
@@ -114,7 +128,7 @@ export function polymarket(options: PolymarketOptions = {}): PredictionProvider 
         limit: opts.limit ?? 20,
         tag_id: opts.category,
       });
-      return markets.map(normalizeMarket);
+      return markets.map((m) => normalizeMarket(m));
     },
 
     async getTrendingMarkets(opts: ListOptions = {}): Promise<Market[]> {
@@ -129,7 +143,7 @@ export function polymarket(options: PolymarketOptions = {}): PredictionProvider 
       const markets: Market[] = [];
       for (const event of events) {
         const market = event.markets?.find((m) => m.active && !m.closed) ?? event.markets?.[0];
-        if (market) markets.push(normalizeMarket(market));
+        if (market) markets.push(normalizeMarket(market, { eventSlug: event.slug }));
       }
       return markets.slice(0, limit);
     },
