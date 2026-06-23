@@ -2,6 +2,14 @@
 
 > One normalized API and a set of React components for prediction-market data — regardless of provider.
 
+[![npm version](https://img.shields.io/npm/v/@prediction-kit/core?color=2563eb&label=%40prediction-kit%2Fcore)](https://www.npmjs.com/package/@prediction-kit/core)
+[![npm version](https://img.shields.io/npm/v/@prediction-kit/react?color=2563eb&label=%40prediction-kit%2Freact)](https://www.npmjs.com/package/@prediction-kit/react)
+[![CI](https://github.com/predictionkit/predictionkit/actions/workflows/ci.yml/badge.svg)](https://github.com/predictionkit/predictionkit/actions/workflows/ci.yml)
+[![downloads](https://img.shields.io/npm/dm/@prediction-kit/core?color=2563eb)](https://www.npmjs.com/package/@prediction-kit/core)
+[![license](https://img.shields.io/npm/l/@prediction-kit/core?color=2563eb)](./LICENSE)
+
+**📖 Docs &amp; live demo: [predictionkit.dev](https://predictionkit.dev)**
+
 PredictionKit lets you drop prediction-market data from **Polymarket** and **Kalshi** into a React app
 through a single, provider-agnostic interface. Read a market from either source and you get the same
 normalized shape; render it with headless, accessible components you can style however you like.

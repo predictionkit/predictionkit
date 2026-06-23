@@ -54,5 +54,17 @@
     "storybook": "^8.5.3",
     "vite": "^5.4.11"
   },
-  "keywords": ["prediction-market", "react", "components", "polymarket", "kalshi"]
+  "keywords": [
+    "prediction-market",
+    "prediction-markets",
+    "react",
+    "react-components",
+    "react-hooks",
+    "headless-ui",
+    "components",
+    "polymarket",
+    "kalshi",
+    "betting-odds",
+    "typescript"
+  ]
 }

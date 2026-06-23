@@ -34,5 +34,16 @@
     "lint": "eslint src",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": ["prediction-market", "polymarket", "kalshi", "sdk", "typescript"]
+  "keywords": [
+    "prediction-market",
+    "prediction-markets",
+    "polymarket",
+    "kalshi",
+    "polymarket-api",
+    "kalshi-api",
+    "betting-odds",
+    "forecasting",
+    "sdk",
+    "typescript"
+  ]
 }

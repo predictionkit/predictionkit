@@ -4,10 +4,47 @@ import { NavLink } from '../components/NavLink';
 import '@prediction-kit/react/styles.css';
 import './globals.css';
 
+const SITE_URL = 'https://predictionkit.dev';
+const DESCRIPTION =
+  'One normalized API and headless React components for prediction-market data from Polymarket and Kalshi. TypeScript-first, accessible, no API keys.';
+
 export const metadata: Metadata = {
-  title: 'PredictionKit — prediction-market data for React',
-  description:
-    'One normalized API and headless React components for prediction-market data from Polymarket and Kalshi.',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: 'PredictionKit — prediction-market data for React',
+    template: '%s · PredictionKit',
+  },
+  description: DESCRIPTION,
+  keywords: [
+    'prediction markets',
+    'polymarket',
+    'kalshi',
+    'react',
+    'react components',
+    'typescript',
+    'sdk',
+    'polymarket api',
+    'kalshi api',
+    'betting odds',
+    'forecasting',
+    'headless ui',
+  ],
+  authors: [{ name: 'Jack Knoell' }],
+  creator: 'Jack Knoell',
+  alternates: { canonical: '/' },
+  openGraph: {
+    type: 'website',
+    url: SITE_URL,
+    siteName: 'PredictionKit',
+    title: 'PredictionKit — prediction-market data for React',
+    description: DESCRIPTION,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'PredictionKit — prediction-market data for React',
+    description: DESCRIPTION,
+  },
+  robots: { index: true, follow: true },
 };
 
 const nav = [
