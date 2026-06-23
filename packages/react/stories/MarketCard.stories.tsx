@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import type { MarketStatus } from '@prediction-kit/core';
 import { MarketCard } from '../src/components/MarketCard';
 import { PredictionKitProvider } from '../src/context';
 import { mockClient, sampleMarkets } from './fixtures';
@@ -15,12 +16,19 @@ export const FromMarketObject: Story = {
   args: { market: sampleMarkets[0] },
 };
 
-export const ClosedMarket: Story = {
-  args: { market: sampleMarkets[2] },
+/** Shows the status pill styling for each normalized status. */
+export const StatusVariants: Story = {
+  render: () => (
+    <div style={{ display: 'grid', gap: 12 }}>
+      {(['open', 'closed', 'resolved'] as MarketStatus[]).map((status) => (
+        <MarketCard key={status} market={{ ...sampleMarkets[0]!, status }} />
+      ))}
+    </div>
+  ),
 };
 
 export const FetchedById: Story = {
-  args: { marketId: 'kalshi:KXHIGHNY-26MAR15-T75' },
+  args: { marketId: 'kalshi:KXPRESPERSON-28-GNEWS' },
   decorators: [
     (Story) => (
       <PredictionKitProvider client={mockClient()}>
