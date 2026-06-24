@@ -4,6 +4,10 @@ export type {
   MarketStatus,
   ProviderSource,
   ListOptions,
+  PriceInterval,
+  PricePoint,
+  PriceHistory,
+  PriceHistoryOptions,
 } from './types';
 export type { PredictionProvider } from './provider';
 export type { PredictionClient, ClientOptions } from './client';

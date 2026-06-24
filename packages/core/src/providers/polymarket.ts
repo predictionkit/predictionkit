@@ -1,9 +1,18 @@
 import type { PredictionProvider } from '../provider';
-import type { ListOptions, Market, MarketOutcome } from '../types';
+import type {
+  ListOptions,
+  Market,
+  MarketOutcome,
+  PriceHistory,
+  PriceHistoryOptions,
+  PricePoint,
+} from '../types';
 import { HttpClient } from '../util/http';
+import { DEFAULT_INTERVAL, INTERVALS } from '../util/interval';
 import { clamp01, num } from '../util/normalize';
 
 const GAMMA_BASE = 'https://gamma-api.polymarket.com';
+const CLOB_BASE = 'https://clob.polymarket.com';
 const SITE = 'https://polymarket.com';
 
 /** Subset of the Gamma API market object we rely on. */
@@ -26,8 +35,14 @@ interface GammaMarket {
   endDate?: string;
   image?: string;
   category?: string;
+  /** Stringified array of per-outcome CLOB token ids (Yes is index 0). */
+  clobTokenIds?: string;
   /** Parent event(s); the public page URL is built from the event slug. */
   events?: Array<{ slug?: string; title?: string }>;
+}
+
+interface ClobPricesHistory {
+  history?: Array<{ t: number; p: number }>;
 }
 
 interface GammaEvent {
@@ -40,6 +55,8 @@ interface GammaEvent {
 export interface PolymarketOptions {
   /** Override the Gamma API base URL. */
   baseUrl?: string;
+  /** Override the CLOB API base URL (used for historical prices). */
+  clobBaseUrl?: string;
   /** Minimum ms between requests (client-side throttle). Defaults to 0. */
   minIntervalMs?: number;
   /** Override the `fetch` implementation (useful for tests). */
@@ -110,6 +127,11 @@ export function polymarket(options: PolymarketOptions = {}): PredictionProvider 
     minIntervalMs: options.minIntervalMs ?? 0,
     fetchImpl: options.fetchImpl,
   });
+  const clob = new HttpClient({
+    baseUrl: options.clobBaseUrl ?? CLOB_BASE,
+    minIntervalMs: options.minIntervalMs ?? 0,
+    fetchImpl: options.fetchImpl,
+  });
 
   return {
     source: 'polymarket',
@@ -146,6 +168,32 @@ export function polymarket(options: PolymarketOptions = {}): PredictionProvider 
         if (market) markets.push(normalizeMarket(market, { eventSlug: event.slug }));
       }
       return markets.slice(0, limit);
+    },
+
+    async getPriceHistory(
+      nativeId: string,
+      opts: PriceHistoryOptions = {},
+    ): Promise<PriceHistory> {
+      const cfg = INTERVALS[opts.interval ?? DEFAULT_INTERVAL];
+      const marketId = `polymarket:${nativeId}`;
+
+      // Historical prices are keyed by the CLOB token id, not the market id, so
+      // resolve the Yes token from the market first.
+      const market = await http.get<GammaMarket>(`/markets/${encodeURIComponent(nativeId)}`);
+      const yesTokenId = parseStringArray(market.clobTokenIds)[0];
+      if (!yesTokenId) return { marketId, source: 'polymarket', points: [] };
+
+      // Use the named `interval` (the CLOB rejects long startTs/endTs ranges).
+      const res = await clob.get<ClobPricesHistory>('/prices-history', {
+        market: yesTokenId,
+        interval: cfg.polyInterval,
+        fidelity: cfg.polyFidelity,
+      });
+      const points: PricePoint[] = (res.history ?? []).map((h) => ({
+        t: h.t * 1000,
+        p: clamp01(h.p),
+      }));
+      return { marketId, source: 'polymarket', points };
     },
   };
 }

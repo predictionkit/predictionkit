@@ -1,4 +1,10 @@
-import type { ListOptions, Market, ProviderSource } from './types';
+import type {
+  ListOptions,
+  Market,
+  PriceHistory,
+  PriceHistoryOptions,
+  ProviderSource,
+} from './types';
 
 /**
  * A read-only adapter for a single prediction-market provider. Each adapter is
@@ -14,4 +20,6 @@ export interface PredictionProvider {
   getMarkets(opts?: ListOptions): Promise<Market[]>;
   /** List currently trending markets (typically by recent volume). */
   getTrendingMarkets(opts?: ListOptions): Promise<Market[]>;
+  /** Fetch the Yes-probability time series for a market. */
+  getPriceHistory(nativeId: string, opts?: PriceHistoryOptions): Promise<PriceHistory>;
 }

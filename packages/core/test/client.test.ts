@@ -33,6 +33,13 @@ function stubProvider(
     async getTrendingMarkets() {
       return markets;
     },
+    async getPriceHistory(nativeId) {
+      return {
+        marketId: `${source}:${nativeId}`,
+        source,
+        points: [{ t: 1_700_000_000_000, p: 0.5 }],
+      };
+    },
     ...overrides,
   };
 }
@@ -62,6 +69,16 @@ describe('createClient', () => {
   it('rejects ids for unregistered providers', async () => {
     const client = createClient({ providers: [stubProvider('polymarket', [])] });
     await expect(client.getMarket('kalshi:ABC')).rejects.toThrow(/No provider registered/);
+  });
+
+  it('routes getPriceHistory to the provider in the id prefix', async () => {
+    const client = createClient({
+      providers: [stubProvider('polymarket', []), stubProvider('kalshi', [])],
+    });
+    const history = await client.getPriceHistory('kalshi:ABC', { interval: '1m' });
+    expect(history.source).toBe('kalshi');
+    expect(history.marketId).toBe('kalshi:ABC');
+    expect(history.points).toHaveLength(1);
   });
 
   it('fans out and merges markets sorted by descending volume', async () => {

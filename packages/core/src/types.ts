@@ -59,3 +59,29 @@ export interface ListOptions {
    */
   category?: string;
 }
+
+/** Lookback window for historical price queries. (`1m` = one month.) */
+export type PriceInterval = '1d' | '1w' | '1m' | '3m' | 'all';
+
+/** A single historical price observation. */
+export interface PricePoint {
+  /** Unix timestamp in milliseconds. */
+  t: number;
+  /** Implied probability of the Yes outcome (0–1) at that time. */
+  p: number;
+}
+
+/** A market's normalized probability time series. */
+export interface PriceHistory {
+  /** Namespaced market id, e.g. `"polymarket:253591"`. */
+  marketId: string;
+  source: ProviderSource;
+  /** Chronological points (oldest first). */
+  points: PricePoint[];
+}
+
+/** Options for a historical price query. */
+export interface PriceHistoryOptions {
+  /** Lookback window. Defaults to `1w`. */
+  interval?: PriceInterval;
+}

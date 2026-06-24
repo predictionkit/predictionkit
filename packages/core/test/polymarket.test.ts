@@ -62,4 +62,28 @@ describe('polymarket adapter', () => {
     const result = await provider.getMarket('253591');
     expect(result.status).toBe('resolved');
   });
+
+  it('fetches price history via the CLOB token id and normalizes to ms', async () => {
+    const withTokens = { ...market, clobTokenIds: '["yes-token-123", "no-token-456"]' };
+    const provider = polymarket({
+      fetchImpl: mockFetch([
+        // market lookup (to resolve the Yes token), then CLOB history
+        ['/markets/253591', withTokens],
+        ['/prices-history', { history: [{ t: 1700000000, p: 0.6 }, { t: 1700003600, p: 0.65 }] }],
+      ]),
+    });
+    const history = await provider.getPriceHistory('253591', { interval: '1w' });
+    expect(history.marketId).toBe('polymarket:253591');
+    expect(history.source).toBe('polymarket');
+    expect(history.points).toEqual([
+      { t: 1700000000000, p: 0.6 },
+      { t: 1700003600000, p: 0.65 },
+    ]);
+  });
+
+  it('returns empty history when the market has no CLOB token', async () => {
+    const provider = polymarket({ fetchImpl: mockFetch([['/markets/253591', market]]) });
+    const history = await provider.getPriceHistory('253591');
+    expect(history.points).toEqual([]);
+  });
 });

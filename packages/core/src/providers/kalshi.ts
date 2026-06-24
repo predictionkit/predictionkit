@@ -1,6 +1,14 @@
 import type { PredictionProvider } from '../provider';
-import type { ListOptions, Market, MarketStatus } from '../types';
+import type {
+  ListOptions,
+  Market,
+  MarketStatus,
+  PriceHistory,
+  PriceHistoryOptions,
+  PricePoint,
+} from '../types';
 import { HttpClient } from '../util/http';
+import { DEFAULT_INTERVAL, INTERVALS } from '../util/interval';
 import { clamp01, num } from '../util/normalize';
 
 const API_BASE = 'https://external-api.kalshi.com/trade-api/v2';
@@ -47,6 +55,15 @@ interface KalshiEventResponse {
 interface KalshiEventsResponse {
   events: KalshiEvent[];
   cursor?: string;
+}
+
+interface KalshiCandle {
+  end_period_ts: number;
+  price?: { close_dollars?: string; mean_dollars?: string };
+}
+
+interface KalshiCandlesResponse {
+  candlesticks?: KalshiCandle[];
 }
 
 /** Context from a market's parent event used to build a title and URL. */
@@ -222,6 +239,29 @@ export function kalshi(options: KalshiOptions = {}): PredictionProvider {
       const collected = collect(await fetchEvents(200, opts.category));
       collected.sort((a, b) => (num(b.m.volume_24h_fp) ?? 0) - (num(a.m.volume_24h_fp) ?? 0));
       return collected.slice(0, limit).map(({ m, ctx }) => normalizeMarket(m, ctx));
+    },
+
+    async getPriceHistory(
+      nativeId: string,
+      opts: PriceHistoryOptions = {},
+    ): Promise<PriceHistory> {
+      const cfg = INTERVALS[opts.interval ?? DEFAULT_INTERVAL];
+      const marketId = `kalshi:${nativeId}`;
+      const series = deriveSeries(nativeId);
+      if (!series) return { marketId, source: 'kalshi', points: [] };
+
+      const endTs = Math.floor(Date.now() / 1000);
+      const res = await http.get<KalshiCandlesResponse>(
+        `/series/${encodeURIComponent(series)}/markets/${encodeURIComponent(nativeId)}/candlesticks`,
+        { start_ts: endTs - cfg.seconds, end_ts: endTs, period_interval: cfg.kalshiPeriod },
+      );
+
+      const points: PricePoint[] = [];
+      for (const candle of res.candlesticks ?? []) {
+        const close = num(candle.price?.close_dollars) ?? num(candle.price?.mean_dollars);
+        if (close != null) points.push({ t: candle.end_period_ts * 1000, p: clamp01(close) });
+      }
+      return { marketId, source: 'kalshi', points };
     },
   };
 }

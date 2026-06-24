@@ -1,5 +1,11 @@
 import type { PredictionProvider } from './provider';
-import type { ListOptions, Market, ProviderSource } from './types';
+import type {
+  ListOptions,
+  Market,
+  PriceHistory,
+  PriceHistoryOptions,
+  ProviderSource,
+} from './types';
 
 export interface ClientOptions {
   /** One adapter per provider you want to read from. */
@@ -20,6 +26,8 @@ export interface PredictionClient {
   getMarkets(opts?: ListOptions): Promise<Market[]>;
   /** List trending markets across all providers, highest-volume first. */
   getTrendingMarkets(opts?: ListOptions): Promise<Market[]>;
+  /** Fetch a market's probability time series (routes by id prefix). */
+  getPriceHistory(id: string, opts?: PriceHistoryOptions): Promise<PriceHistory>;
 }
 
 function parseId(id: string): { source: ProviderSource; nativeId: string } {
@@ -74,6 +82,15 @@ export function createClient({ providers }: ClientOptions): PredictionClient {
 
     getTrendingMarkets(opts: ListOptions = {}): Promise<Market[]> {
       return fanOut((p) => p.getTrendingMarkets(opts), opts.limit);
+    },
+
+    getPriceHistory(id: string, opts: PriceHistoryOptions = {}): Promise<PriceHistory> {
+      const { source, nativeId } = parseId(id);
+      const provider = bySource.get(source);
+      if (!provider) {
+        throw new Error(`No provider registered for source "${source}".`);
+      }
+      return provider.getPriceHistory(nativeId, opts);
     },
   };
 }

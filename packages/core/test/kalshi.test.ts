@@ -80,4 +80,22 @@ describe('kalshi adapter', () => {
     const result = await provider.getMarket('KX');
     expect(result.status).toBe('resolved');
   });
+
+  it('fetches candlesticks (under the derived series) and normalizes close price', async () => {
+    const candles = {
+      candlesticks: [
+        { end_period_ts: 1700000000, price: { close_dollars: '0.55', mean_dollars: '0.54' } },
+        { end_period_ts: 1700086400, price: { close_dollars: '0.61' } },
+        { end_period_ts: 1700172800, price: {} }, // no trade — skipped
+      ],
+    };
+    const provider = kalshi({ ...opts, fetchImpl: mockFetch([['/candlesticks', candles]]) });
+    const history = await provider.getPriceHistory('KXPRES-28-GNEWS', { interval: '1m' });
+    expect(history.marketId).toBe('kalshi:KXPRES-28-GNEWS');
+    expect(history.source).toBe('kalshi');
+    expect(history.points).toEqual([
+      { t: 1700000000000, p: 0.55 },
+      { t: 1700086400000, p: 0.61 },
+    ]);
+  });
 });
