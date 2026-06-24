@@ -1,6 +1,6 @@
 {
   "name": "@prediction-kit/charts",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Recharts-based charts for prediction-market data, built on @prediction-kit/core and @prediction-kit/react.",
   "license": "MIT",
   "author": "Jack Knoell",
@@ -23,7 +23,9 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "publishConfig": {
     "access": "public"
   },

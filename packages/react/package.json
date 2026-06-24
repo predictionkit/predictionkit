@@ -1,6 +1,6 @@
 {
   "name": "@prediction-kit/react",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Headless, accessible React components and hooks for prediction-market data, built on @prediction-kit/core.",
   "license": "MIT",
   "author": "Jack Knoell",

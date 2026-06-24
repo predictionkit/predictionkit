@@ -1,6 +1,6 @@
 {
   "name": "@prediction-kit/core",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Provider-agnostic SDK for prediction-market data (Polymarket, Kalshi) with one normalized model.",
   "license": "MIT",
   "author": "Jack Knoell",
