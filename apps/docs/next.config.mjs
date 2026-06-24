@@ -6,7 +6,11 @@ const withMDX = createMDX({});
 const nextConfig = {
   pageExtensions: ['ts', 'tsx', 'md', 'mdx'],
   // The workspace packages ship ESM/CJS dual builds; let Next transpile them.
-  transpilePackages: ['@prediction-kit/core', '@prediction-kit/react'],
+  transpilePackages: [
+    '@prediction-kit/core',
+    '@prediction-kit/react',
+    '@prediction-kit/charts',
+  ],
   images: {
     remotePatterns: [{ protocol: 'https', hostname: '**' }],
   },

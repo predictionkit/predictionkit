@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { MarketCard, MarketList, ProbabilityBadge } from '@prediction-kit/react';
+import { ProbabilityChart } from '@prediction-kit/charts';
 import { Example } from '../../components/Example';
-import { sampleMarkets } from '../../lib/sample';
+import { sampleMarkets, samplePriceHistory } from '../../lib/sample';
 
 export const metadata: Metadata = { title: 'Components — PredictionKit' };
 
@@ -56,6 +57,19 @@ export default function ComponentsPage() {
       <pre>
         <code>{`<TrendingMarkets limit={10} />`}</code>
       </pre>
+
+      <h2>ProbabilityChart</h2>
+      <p>
+        From <code>@prediction-kit/charts</code> — an area chart of a market&rsquo;s probability over
+        time (Recharts). Pass <code>data</code> or a <code>marketId</code> + <code>interval</code> to
+        fetch. See a live one on the <a href="/demo">demo</a>.
+      </p>
+      <pre>
+        <code>{`<ProbabilityChart marketId="kalshi:KXPRESPERSON-28-GNEWS" interval="1m" />`}</code>
+      </pre>
+      <Example label="ProbabilityChart (sample data)">
+        <ProbabilityChart data={samplePriceHistory(0.62)} height={240} />
+      </Example>
     </div>
   );
 }
