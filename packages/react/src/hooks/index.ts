@@ -1,4 +1,9 @@
-import type { ListOptions, Market } from '@prediction-kit/core';
+import type {
+  ListOptions,
+  Market,
+  PriceHistory,
+  PriceHistoryOptions,
+} from '@prediction-kit/core';
 import { usePredictionClient } from '../context';
 import { useAsync } from './useAsync';
 import type { AsyncState } from './useAsync';
@@ -25,4 +30,13 @@ export function useTrendingMarkets(options: ListOptions = {}): AsyncState<Market
     () => client.getTrendingMarkets(options),
     [client, options.limit, options.category],
   );
+}
+
+/** Fetch a market's probability time series by namespaced id. */
+export function usePriceHistory(
+  id: string,
+  options: PriceHistoryOptions = {},
+): AsyncState<PriceHistory> {
+  const client = usePredictionClient();
+  return useAsync(() => client.getPriceHistory(id, options), [client, id, options.interval]);
 }

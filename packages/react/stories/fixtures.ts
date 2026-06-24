@@ -1,4 +1,18 @@
-import type { Market, PredictionClient } from '@prediction-kit/core';
+import type { Market, PredictionClient, PricePoint } from '@prediction-kit/core';
+
+/** Deterministic synthetic probability walk, for offline chart stories. */
+export function samplePriceHistory(end = 0.62, days = 30): PricePoint[] {
+  const points: PricePoint[] = [];
+  const now = Date.UTC(2026, 5, 24);
+  let p = Math.max(0.02, end - 0.18);
+  for (let i = days; i >= 0; i--) {
+    // gentle deterministic wobble trending toward `end`
+    p += (end - p) * 0.12 + Math.sin(i * 1.3) * 0.015;
+    p = Math.min(0.98, Math.max(0.02, p));
+    points.push({ t: now - i * 86_400_000, p: Number(p.toFixed(4)) });
+  }
+  return points;
+}
 
 /**
  * Real markets captured from the live Polymarket + Kalshi APIs (June 2026),
@@ -88,6 +102,11 @@ export function mockClient(markets: Market[] = sampleMarkets): PredictionClient 
     },
     async getTrendingMarkets({ limit } = {}): Promise<Market[]> {
       return typeof limit === 'number' ? markets.slice(0, limit) : markets;
+    },
+    async getPriceHistory(id) {
+      const market = markets.find((m) => m.id === id);
+      const source = market?.source ?? 'polymarket';
+      return { marketId: id, source, points: samplePriceHistory(market?.probability ?? 0.5) };
     },
   };
 }
